@@ -1,66 +1,68 @@
 --[[
-  My UI Configuration Script
+  Custom UI Framework
 
-  This script initializes the Draggable UI Framework and provides it with
-  the specific title and button actions for this UI.
+  This script is a self-contained UI framework that uses loadstring to
+  execute code from a remote URL. This allows for live updates and a
+  centralized configuration.
+  
+  !! WARNING !!
+  Using loadstring to execute code from an external URL is a major security risk.
+  The code at the URL could change at any time and may contain malicious scripts.
+  Only use this method if you have full control over the external content.
 ]]
 
--- IMPORTANT: You must place the "DraggableUIFramework.lua" module script
--- in a location like ReplicatedStorage. Update the path below to match
--- where you've saved the file.
-local FRAMEWORK_PATH = game.ReplicatedStorage.DraggableUIFramework
-local draggableUIFramework = require(FRAMEWORK_PATH)
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Check if the framework was successfully loaded before continuing.
-if not draggableUIFramework then
-    warn("DraggableUIFramework not found. Please ensure the 'DraggableUIFramework.lua' module script is in ReplicatedStorage and spelled correctly.")
-    return
+local player = Players.LocalPlayer
+
+-- The URL to the remote UI script
+local UI_URL = "https://raw.githubusercontent.com/robloxui/ui/main/ui.lua"
+
+local uiModule = nil
+
+-- The main function to initialize and run the UI
+local function Init(config)
+    -- Check if the module has already been loaded
+    if uiModule then
+        return uiModule
+    end
+
+    local success, loadedModule = pcall(function()
+        -- Load and execute the code directly from the URL
+        return loadstring(game:HttpGet(UI_URL))()
+    end)
+    
+    if not success then
+        warn("Failed to load and execute UI module: " .. tostring(loadedModule))
+        return nil
+    end
+
+    if not loadedModule then
+        warn("UI module did not return a valid table.")
+        return nil
+    end
+
+    -- If the module has an Init function, call it
+    if loadedModule.Init then
+        loadedModule:Init(config)
+    else
+        warn("UI module does not have an 'Init' function.")
+    end
+
+    uiModule = loadedModule
+    return uiModule
 end
 
--- Define your UI configuration here.
 local config = {
-    -- The title of your UI, which will be displayed in the frame.
-    title = "My Custom UI",
-
-    -- A list of buttons to create.
-    -- Each button needs a "name" and an "action" function.
+    title = "My UI",
     buttons = {
-        {
-            name = "Click Me!",
-            action = function()
-                print("The 'Click Me!' button was pressed.")
-            end
-        },
-        {
-            name = "Another Button",
-            action = function()
-                local newPart = Instance.new("Part")
-                newPart.Position = Vector3.new(0, 5, 0)
-                newPart.Parent = workspace
-                print("A new part was created.")
-            end
-        },
-        {
-            name = "Close UI",
-            action = function()
-                -- Assuming 'DraggableGUIScript' is the ScreenGui created by the framework
-                local ui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("DraggableGUIScript")
-                if ui then
-                    local frame = ui:FindFirstChild("MainFrame")
-                    if frame then
-                        frame.Visible = false
-                    end
-                end
-            end
-        }
+        {name = "Button 1", action = function() print("Button 1 pressed") end},
+        {name = "Button 2", action = function() print("Button 2 pressed") end},
+        {name = "Button 3", action = function() print("Button 3 pressed") end},
     }
 }
 
--- Initialize the UI by calling the createUI function from the framework.
-draggableUIFramework.createUI(config)
-
--- You can also call it on player respawn if you'd like.
-local player = game.Players.LocalPlayer
-player.CharacterAdded:Connect(function()
-    draggableUIFramework.createUI(config)
-end)
+-- Initialize the UI
+Init(config)
