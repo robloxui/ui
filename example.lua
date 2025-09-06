@@ -15,7 +15,7 @@ local function Init(config)
 
     local success, loadedModule = pcall(function()
         -- Load and execute the code directly from the URL
-        return loadstring(game:HttpGet("https://pandadevelopment.net/virtual/file/7c95f44459797f5b"))()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/robloxui/ui/main/ui.lua"))()
     end)
     
     if not success then
