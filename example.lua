@@ -1,24 +1,8 @@
---[[
-  Custom UI Framework
-
-  This script is a self-contained UI framework that uses loadstring to
-  execute code from a remote URL. This allows for live updates and a
-  centralized configuration.
-  
-  !! WARNING !!
-  Using loadstring to execute code from an external URL is a major security risk.
-  The code at the URL could change at any time and may contain malicious scripts.
-  Only use this method if you have full control over the external content.
-]]
-
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
-
--- The URL to the remote UI script
-local UI_URL = "https://raw.githubusercontent.com/robloxui/ui/main/ui.lua"
 
 local uiModule = nil
 
@@ -31,7 +15,7 @@ local function Init(config)
 
     local success, loadedModule = pcall(function()
         -- Load and execute the code directly from the URL
-        return loadstring(game:HttpGet(UI_URL))()
+        return loadstring(game:HttpGet("https://pandadevelopment.net/virtual/file/7c95f44459797f5b"))()
     end)
     
     if not success then
